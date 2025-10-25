@@ -1,0 +1,23 @@
+{
+  "name": "space-education-hub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "uploadSchools.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nthabi2905/space-education-hub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nthabi2905/space-education-hub/issues"
+  },
+  "homepage": "https://github.com/Nthabi2905/space-education-hub#readme",
+  "dependencies": {
+    "firebase": "^12.4.0"
+  }
+}

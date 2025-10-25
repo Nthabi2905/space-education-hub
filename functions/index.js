@@ -1,4 +1,3 @@
-// functions/index.js
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
@@ -15,31 +14,27 @@ function distanceKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// HTTP function: match nearby underserved schools
 exports.matchSchools = functions.https.onRequest(async (req, res) => {
   try {
-    const { lat, lng, radiusKm = 100 } = req.query;
-    if (!lat || !lng) return res.status(400).send("Provide lat & lng");
+    const lat = parseFloat(req.query.lat),
+      lng = parseFloat(req.query.lng),
+      radiusKm = parseFloat(req.query.radiusKm || 200);
+    if (Number.isNaN(lat) || Number.isNaN(lng))
+      return res.status(400).send("Provide lat & lng numeric");
     const snap = await db
       .collection("schools")
       .where("isUnderserved", "==", true)
       .get();
-    const results = [];
+    const out = [];
     snap.forEach((d) => {
       const s = d.data();
-      const id = d.id;
       if (!s.location) return;
-      const dkm = distanceKm(
-        parseFloat(lat),
-        parseFloat(lng),
-        s.location.lat,
-        s.location.lng
-      );
-      if (dkm <= parseFloat(radiusKm))
-        results.push({ id, name: s.name, province: s.province, dist: dkm });
+      const dkm = distanceKm(lat, lng, s.location.lat, s.location.lng);
+      if (dkm <= radiusKm)
+        out.push({ id: d.id, name: s.name, province: s.province, dist: dkm });
     });
-    results.sort((a, b) => a.dist - b.dist);
-    return res.json({ count: results.length, results });
+    out.sort((a, b) => a.dist - b.dist);
+    return res.json({ count: out.length, results: out });
   } catch (e) {
     console.error(e);
     return res.status(500).send("Server error");
