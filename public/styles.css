@@ -1,0 +1,106 @@
+:root {
+  --primary-color: #4b0082; /* Deep purple */
+  --secondary-color: #ff6b6b; /* Coral pink */
+  --accent-color: #4de9d6; /* Turquoise */
+  --background-color: #f0f7ff; /* Light blue background */
+  --text-color: #333333;
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: "Comic Sans MS", "Roboto", sans-serif;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 5px solid var(--accent-color);
+}
+
+nav {
+  background-color: var(--primary-color);
+  padding: 1rem;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+}
+
+nav a:hover {
+  background-color: var(--secondary-color);
+}
+
+.card {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+button {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--accent-color);
+}
+
+.planet-image {
+  border-radius: 50%;
+  border: 5px solid var(--accent-color);
+  max-width: 200px;
+}
+
+footer {
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.floating {
+  animation: float 3s ease-in-out infinite;
+}

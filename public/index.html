@@ -4,50 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Space Education Hub — Demo</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        max-width: 1000px;
-      }
-      .hidden {
-        display: none;
-      }
-      .card {
-        border: 1px solid #ddd;
-        padding: 12px;
-        margin: 8px 0;
-        border-radius: 8px;
-      }
-      button {
-        padding: 8px 12px;
-        margin: 6px 0;
-      }
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 8px;
-        margin: 6px 0;
-        box-sizing: border-box;
-      }
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-      @media (max-width: 720px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header>
@@ -126,6 +83,8 @@
         </div>
       </div>
     </main>
+
+    <img src="planet.jpg" class="planet-image floating" alt="Planet" />
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
