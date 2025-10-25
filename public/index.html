@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Space Education Hub — Demo</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        max-width: 1000px;
+      }
+      .hidden {
+        display: none;
+      }
+      .card {
+        border: 1px solid #ddd;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+      }
+      button {
+        padding: 8px 12px;
+        margin: 6px 0;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0;
+        box-sizing: border-box;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h2>Space Education Hub — Demo</h2>
+      <div id="userInfo"></div>
+    </header>
+
+    <section id="authSection" class="card">
+      <h3>Sign up / Login</h3>
+      <label>Email<input id="email" /></label>
+      <label>Password<input id="password" type="password" /></label>
+      <label
+        >Role
+        <select id="role">
+          <option value="school">School (teacher)</option>
+          <option value="organisation">Organisation</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+      <button id="signup">Sign up</button>
+      <button id="login">Log in</button>
+      <button id="logout" class="hidden">Log out</button>
+    </section>
+
+    <main id="mainApp" class="hidden">
+      <div id="orgUI" class="hidden">
+        <div class="card">
+          <h3>Create Outreach Event (Organisation)</h3>
+          <input
+            id="ev_title"
+            placeholder="Title (e.g., Solar telescope workshop)"
+          />
+          <textarea
+            id="ev_description"
+            placeholder="Short description"
+          ></textarea>
+          <label>Date & time<input id="ev_date" type="datetime-local" /></label>
+          <label>Latitude<input id="ev_lat" placeholder="-34.0" /></label>
+          <label>Longitude<input id="ev_lng" placeholder="18.4" /></label>
+          <label
+            >Capacity<input id="ev_capacity" type="number" value="50"
+          /></label>
+          <button id="createEventBtn">
+            Create Event & Match Nearby Underserved
+          </button>
+          <div id="matchResults" class="card hidden">
+            <h4>Matched Schools</h4>
+            <div id="matchedList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>My Events</h3>
+          <div id="orgEventsList"></div>
+        </div>
+      </div>
+
+      <div id="schoolUI" class="hidden">
+        <div class="card">
+          <h3>Browse Events</h3>
+          <div id="eventsList"></div>
+        </div>
+
+        <div class="card">
+          <h3>My Bookings</h3>
+          <div id="myBookings"></div>
+        </div>
+      </div>
+
+      <div id="adminUI" class="hidden">
+        <div class="card">
+          <h3>Admin Dashboard</h3>
+          <div id="allOrgs"></div>
+          <div id="allSchools"></div>
+          <div id="allEvents"></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      // ---------- CONFIG: replace with YOUR_FIREBASE_CONFIG ----------
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTHDOMAIN",
+        projectId: "space-education-hub",
+        // ...copy all fields from your Firebase project config
+      };
+      // ---------------------------------------------------------------
+
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      // UI elements
+      const emailEl = document.getElementById("email"),
+        pwEl = document.getElementById("password"),
+        roleEl = document.getElementById("role");
+      const signupBtn = document.getElementById("signup"),
+        loginBtn = document.getElementById("login"),
+        logoutBtn = document.getElementById("logout");
+      const authSection = document.getElementById("authSection"),
+        mainApp = document.getElementById("mainApp");
+      const userInfo = document.getElementById("userInfo");
+      const orgUI = document.getElementById("orgUI"),
+        schoolUI = document.getElementById("schoolUI"),
+        adminUI = document.getElementById("adminUI");
+
+      // Event inputs
+      const createEventBtn = document.getElementById("createEventBtn");
+      const ev_title = document.getElementById("ev_title"),
+        ev_description = document.getElementById("ev_description"),
+        ev_date = document.getElementById("ev_date"),
+        ev_lat = document.getElementById("ev_lat"),
+        ev_lng = document.getElementById("ev_lng"),
+        ev_capacity = document.getElementById("ev_capacity"),
+        matchResults = document.getElementById("matchResults"),
+        matchedList = document.getElementById("matchedList");
+
+      const orgEventsList = document.getElementById("orgEventsList"),
+        eventsList = document.getElementById("eventsList"),
+        myBookings = document.getElementById("myBookings");
+      const allOrgs = document.getElementById("allOrgs"),
+        allSchools = document.getElementById("allSchools"),
+        allEvents = document.getElementById("allEvents");
+
+      // Signup
+      signupBtn.onclick = async () => {
+        const email = emailEl.value.trim(),
+          pw = pwEl.value.trim(),
+          role = roleEl.value;
+        if (!email || !pw) return alert("Enter email & password");
+        try {
+          const userCred = await auth.createUserWithEmailAndPassword(email, pw);
+          const uid = userCred.user.uid;
+          await db
+            .collection("users")
+            .doc(uid)
+            .set({
+              uid,
+              email,
+              role,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              // sample metadata placeholders
+              profile:
+                role === "school"
+                  ? { name: "Your School", province: "", isUnderserved: true }
+                  : { name: "Your Org" },
+            });
+          alert("Signed up! Please login.");
+        } catch (e) {
+          alert(e.message);
+        }
+      };
+
+      // Login
+      loginBtn.onclick = async () => {
+        const email = emailEl.value.trim(),
+          pw = pwEl.value.trim();
+        try {
+          await auth.signInWithEmailAndPassword(email, pw);
+        } catch (e) {
+          alert(e.message);
+        }
+      };
+
+      // Logout
+      logoutBtn.onclick = () => auth.signOut();
+
+      // On auth state changed
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          logoutBtn.classList.remove("hidden");
+          loginBtn.classList.add("hidden");
+          signupBtn.classList.add("hidden");
+          authSection.classList.add("hidden");
+          mainApp.classList.remove("hidden");
+          const doc = await db.collection("users").doc(user.uid).get();
+          const userData = doc.exists ? doc.data() : null;
+          userInfo.innerHTML = `<strong>${user.email}</strong> (${
+            userData ? userData.role : "unknown"
+          })`;
+          // show UI per role
+          orgUI.classList.add("hidden");
+          schoolUI.classList.add("hidden");
+          adminUI.classList.add("hidden");
+          if (userData && userData.role === "organisation") {
+            orgUI.classList.remove("hidden");
+            loadOrgEvents(user.uid);
+          }
+          if (userData && userData.role === "school") {
+            schoolUI.classList.remove("hidden");
+            loadEvents();
+            loadMyBookings(user.uid);
+          }
+          if (userData && userData.role === "admin") {
+            adminUI.classList.remove("hidden");
+            loadAdmin();
+          }
+        } else {
+          logoutBtn.classList.add("hidden");
+          loginBtn.classList.remove("hidden");
+          signupBtn.classList.remove("hidden");
+          authSection.classList.remove("hidden");
+          mainApp.classList.add("hidden");
+          userInfo.innerHTML = "";
+        }
+      });
+
+      // ---------- Organisation: create event & trigger matching ----------
+      createEventBtn.onclick = async () => {
+        const user = auth.currentUser;
+        if (!user) return alert("Login as organisation");
+        const title = ev_title.value.trim(),
+          description = ev_description.value.trim();
+        const date = ev_date.value,
+          lat = parseFloat(ev_lat.value),
+          lng = parseFloat(ev_lng.value),
+          capacity = parseInt(ev_capacity.value || "50");
+        if (!title || !date || isNaN(lat) || isNaN(lng))
+          return alert("Fill title, date, lat, lng");
+        const eventRef = await db.collection("events").add({
+          orgId: user.uid,
+          title,
+          description,
+          date: new Date(date).toISOString(),
+          location: { lat, lng },
+          capacity,
+          status: "open",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        alert(
+          "Event created. Attempting to match nearby underserved schools..."
+        );
+        // call cloud function endpoint - via HTTP callable or emulate here by simple query:
+        // For simplicity, call a small client-side function that queries schools with isUnderserved true and distance < 100km
+        const matched = await matchNearbyUnderserved(lat, lng, 100); // km
+        if (matched.length) {
+          matchResults.classList.remove("hidden");
+          matchedList.innerHTML = "";
+          matched.forEach((s) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = `<strong>${s.name}</strong> (${s.province}) <button data-id="${s.id}">Invite</button>`;
+            matchedList.appendChild(div);
+            div.querySelector("button").onclick = async () => {
+              // create booking request for that school
+              await db.collection("bookings").add({
+                eventId: eventRef.id,
+                schoolId: s.id,
+                orgId: user.uid,
+                status: "requested",
+                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              });
+              alert("Booking request sent to " + s.name);
+            };
+          });
+        } else {
+          matchResults.classList.remove("hidden");
+          matchedList.innerHTML =
+            "<em>No nearby underserved schools found within 100km.</em>";
+        }
+        loadOrgEvents(user.uid);
+      };
+
+      // simple geodistance (Haversine) to find nearby underserved schools client-side
+      async function matchNearbyUnderserved(lat, lng, radiusKm = 100) {
+        const snap = await db
+          .collection("schools")
+          .where("isUnderserved", "==", true)
+          .get();
+        const results = [];
+        snap.forEach((d) => {
+          const s = d.data();
+          s.id = d.id;
+          if (!s.location) return;
+          const dkm = distanceKm(lat, lng, s.location.lat, s.location.lng);
+          if (dkm <= radiusKm)
+            results.push({
+              id: d.id,
+              name: s.name,
+              province: s.province,
+              dist: dkm,
+            });
+        });
+        results.sort((a, b) => a.dist - b.dist);
+        return results;
+      }
+      function distanceKm(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const toRad = Math.PI / 180;
+        const dLat = (lat2 - lat1) * toRad;
+        const dLon = (lon2 - lon1) * toRad;
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(lat1 * toRad) *
+            Math.cos(lat2 * toRad) *
+            Math.sin(dLon / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      // ---------- Organisation: load events ----------
+      async function loadOrgEvents(orgUid) {
+        orgEventsList.innerHTML = "Loading...";
+        const snap = await db
+          .collection("events")
+          .where("orgId", "==", orgUid)
+          .orderBy("createdAt", "desc")
+          .get();
+        orgEventsList.innerHTML = "";
+        snap.forEach((d) => {
+          const e = d.data();
+          const id = d.id;
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `<strong>${e.title}</strong><div>${e.description}</div><div>${e.date}</div><div>Status: ${e.status}</div>
+          <button data-id="${id}">View bookings</button>`;
+          orgEventsList.appendChild(div);
+          div.querySelector("button").onclick = async () =>
+            viewBookingsForEvent(id);
+        });
+      }
+
+      async function viewBookingsForEvent(eventId) {
+        const snap = await db
+          .collection("bookings")
+          .where("eventId", "==", eventId)
+          .get();
+        let html = "<h4>Bookings</h4>";
+        snap.forEach((d) => {
+          const b = d.data();
+          b.id = d.id;
+          html += `<div class="card">School: ${b.schoolId} | Status: ${b.status} 
+          <button data-id="${b.id}" class="confirmBtn">Confirm</button></div>`;
+        });
+        const w = window.open("", "_blank", "width=600,height=600");
+        w.document.body.innerHTML = html;
+        // add confirm handlers in popup is complex; for hackathon show list only (or implement confirm via admin)
+      }
+
+      // ---------- School: browse events ----------
+      async function loadEvents() {
+        eventsList.innerHTML = "Loading...";
+        const snap = await db.collection("events").orderBy("date", "asc").get();
+        eventsList.innerHTML = "";
+        snap.forEach((d) => {
+          const e = d.data();
+          const id = d.id;
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `<strong>${e.title}</strong><div>${e.description}</div><div>${e.date}</div>
+          <div>Org: ${e.orgId}</div><button data-id="${id}">Request visit</button>`;
+          eventsList.appendChild(div);
+          div.querySelector("button").onclick = async () => {
+            const user = auth.currentUser;
+            if (!user) return alert("Login as school");
+            await db.collection("bookings").add({
+              eventId: id,
+              schoolId: user.uid,
+              orgId: e.orgId,
+              status: "requested",
+              requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+            alert("Request sent");
+            loadMyBookings(user.uid);
+          };
+        });
+      }
+
+      // ---------- School: my bookings ----------
+      async function loadMyBookings(schoolUid) {
+        myBookings.innerHTML = "Loading...";
+        const snap = await db
+          .collection("bookings")
+          .where("schoolId", "==", schoolUid)
+          .orderBy("requestedAt", "desc")
+          .get();
+        myBookings.innerHTML = "";
+        snap.forEach((d) => {
+          const b = d.data();
+          const id = d.id;
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `<div>Event: ${b.eventId} | Status: ${b.status}</div>
+          ${
+            b.status === "completed"
+              ? `<button data-id="${id}" class="fb">Leave feedback</button>`
+              : ""
+          }`;
+          myBookings.appendChild(div);
+          const btn = div.querySelector(".fb");
+          if (btn)
+            btn.onclick = () => {
+              const comments = prompt("Feedback comments:");
+              const rating = prompt("Rating 1-5:");
+              if (comments) {
+                db.collection("feedbacks").add({
+                  bookingId: id,
+                  comments,
+                  rating: parseInt(rating || 5),
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                alert("Thanks for feedback");
+              }
+            };
+        });
+      }
+
+      // ---------- Admin: load lists ----------
+      async function loadAdmin() {
+        allOrgs.innerHTML = "Loading orgs...";
+        allSchools.innerHTML = "Loading schools...";
+        allEvents.innerHTML = "Loading events...";
+        const uSnap = await db
+          .collection("users")
+          .where("role", "==", "organisation")
+          .get();
+        allOrgs.innerHTML = "<h4>Organisations</h4>";
+        uSnap.forEach(
+          (d) => (allOrgs.innerHTML += `<div>${d.data().email} | ${d.id}</div>`)
+        );
+        const sSnap = await db.collection("schools").get();
+        allSchools.innerHTML = "<h4>Schools</h4>";
+        sSnap.forEach(
+          (d) =>
+            (allSchools.innerHTML += `<div>${d.data().name} (Underserved:${
+              d.data().isUnderserved
+            }) | ${d.id}</div>`)
+        );
+        const eSnap = await db.collection("events").get();
+        allEvents.innerHTML = "<h4>Events</h4>";
+        eSnap.forEach(
+          (d) =>
+            (allEvents.innerHTML += `<div>${d.data().title} | ${d.id}</div>`)
+        );
+      }
+
+      // Optional: listen for simple changes to refresh lists
+      db.collection("events").onSnapshot(() => {
+        const u = auth.currentUser;
+        if (u) {
+          db.collection("users")
+            .doc(u.uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                const r = doc.data().role;
+                if (r === "organisation") loadOrgEvents(u.uid);
+                if (r === "school") loadEvents();
+                if (r === "admin") loadAdmin();
+              }
+            });
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+[debug] [2025-10-25T16:31:21.682Z] ----------------------------------------------------------------------
+[debug] [2025-10-25T16:31:21.688Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\nmi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2025-10-25T16:31:21.689Z] CLI Version:   14.22.0
+[debug] [2025-10-25T16:31:21.689Z] Platform:      win32
+[debug] [2025-10-25T16:31:21.689Z] Node Version:  v22.21.0
+[debug] [2025-10-25T16:31:21.690Z] Time:          Sat Oct 25 2025 18:31:21 GMT+0200 (South Africa Standard Time)
+[debug] [2025-10-25T16:31:21.690Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\nmi\Downloads\Nthabi\Space-Education-Hub
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
