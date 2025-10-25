@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <title>Space Education Hub — Demo App</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script type="module" src="app.js"></script>
+
     <style>
       /* Minimal styling for readability */
       body {
@@ -198,6 +200,18 @@
         </div>
       </section>
     </div>
+    <!-- DYNAMIC SCHOOL LIST (shows live data from Firestore) -->
+    <section id="schools" style="margin-top: 40px">
+      <h2>Connected Schools</h2>
+      <p class="small">
+        These are the schools currently listed in the Space Education Hub
+        database.
+      </p>
+      <div
+        id="schools-list"
+        style="display: grid; gap: 1rem; margin-top: 1rem"
+      ></div>
+    </section>
 
     <!-- Firebase SDKs (compat for simpler single-file demo) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -557,15 +571,13 @@
           div.querySelector("button").onclick = async () => {
             const user = auth.currentUser;
             if (!user) return alert("Login as school");
-            await db
-              .collection("bookings")
-              .add({
-                eventId: id,
-                schoolId: user.uid,
-                orgId: e.orgId,
-                status: "requested",
-                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-              });
+            await db.collection("bookings").add({
+              eventId: id,
+              schoolId: user.uid,
+              orgId: e.orgId,
+              status: "requested",
+              requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
             alert("Booking request sent");
             loadMyBookings(user.uid);
           };

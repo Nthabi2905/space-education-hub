@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Nthabi2905/space-education-hub#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "firebase": "^12.4.0"
   }
 }
