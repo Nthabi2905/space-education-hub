@@ -1,625 +1,89 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <title>Space Education Hub</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <script type="module" src="app.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Firebase Hosting</title>
 
-    <style>
-      /* Minimal styling for readability */
-      body {
-        font-family: Inter, Arial, sans-serif;
-        margin: 0;
-        color: #0b3d3d;
-        background: #f6fdfb;
-      }
-      header {
-        background: #0b3d3d;
-        color: #fff;
-        padding: 12px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .container {
-        padding: 20px;
-        max-width: 1100px;
-        margin: 0 auto;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-      }
-      .card {
-        background: #fff;
-        padding: 16px;
-        border-radius: 8px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-      }
-      input,
-      select,
-      textarea,
-      button {
-        width: 100%;
-        padding: 10px;
-        margin: 8px 0;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-      }
-      button {
-        cursor: pointer;
-        background: #33cc99;
-        color: #fff;
-        border: none;
-        font-weight: 600;
-      }
-      .btn-ghost {
-        background: #fff;
-        color: #33cc99;
-        border: 1px solid #33cc99;
-      }
-      .hidden {
-        display: none;
-      }
-      .small {
-        font-size: 0.9rem;
-        color: #666;
-      }
-      .badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 999px;
-        background: #eafaf1;
-        color: #0a7b5d;
-        font-weight: 700;
-      }
-      @media (max-width: 900px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/12.4.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/12.4.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <style media="screen">
+      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
+      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
+      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
+      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
+      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
+      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
+      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
+      @media (max-width: 600px) {
+        body, #message { margin-top: 0; background: white; box-shadow: none; }
+        body { border-top: 16px solid #ffa100; }
       }
     </style>
   </head>
   <body>
-    <div id="app"></div>
-    <script src="app.js"></script>
-    <header>
-      <div><strong>Space Education Hub</strong> — Demo</div>
-      <div id="headerRight"></div>
-    </header>
-
-    <div class="container">
-      <!-- HERO -->
-      <section class="card">
-        <h1>Making Space Education Accessible</h1>
-        <p class="small">
-          A platform connecting space & STEM organisations with schools.
-          Automate outreach, match underserved schools, coordinate visits and
-          measure impact.
-        </p>
-        <div style="margin-top: 12px">
-          <button id="openAppBtn">Open App</button>
-        </div>
-      </section>
-
-      <!-- APP (hidden until open) -->
-      <section id="appArea" class="hidden" style="margin-top: 18px">
-        <div class="grid">
-          <!-- LEFT: Auth & Role-specific actions -->
-          <div>
-            <div id="authCard" class="card">
-              <h3>Sign up / Login</h3>
-              <input id="email" placeholder="Email" />
-              <input id="password" placeholder="Password" type="password" />
-              <select id="role">
-                <option value="school">School (Teacher)</option>
-                <option value="organisation">Organisation</option>
-                <option value="admin">Admin</option>
-              </select>
-              <button id="signupBtn">Sign up</button>
-              <button id="loginBtn" class="btn-ghost">Login</button>
-              <button id="logoutBtn" class="hidden">Logout</button>
-              <div id="authMsg" class="small"></div>
-            </div>
-
-            <div id="orgPanel" class="card hidden">
-              <h3>Organisation — Create Outreach Event</h3>
-              <input
-                id="ev_title"
-                placeholder="Title (e.g., Solar Telescope Workshop)"
-              />
-              <textarea
-                id="ev_description"
-                placeholder="Short description"
-              ></textarea>
-              <input id="ev_date" type="datetime-local" />
-              <input id="ev_lat" placeholder="Latitude (e.g., -34.0)" />
-              <input id="ev_lng" placeholder="Longitude (e.g., 18.4)" />
-              <input
-                id="ev_capacity"
-                placeholder="Capacity (number)"
-                type="number"
-                value="50"
-              />
-              <button id="createEventBtn">
-                Create Event & Match Nearby Underserved
-              </button>
-              <div id="matchedBox" class="hidden card" style="margin-top: 12px">
-                <h4>Matched schools</h4>
-                <div id="matchedList" class="small"></div>
-              </div>
-              <div style="margin-top: 12px">
-                <button id="viewMyEventsBtn" class="btn-ghost">
-                  Refresh My Events
-                </button>
-              </div>
-            </div>
-
-            <div id="schoolPanel" class="card hidden">
-              <h3>School — Browse & Request</h3>
-              <p class="small">
-                Browse upcoming outreach events and request a visit.
-              </p>
-              <div id="eventsBrowse" class="small"></div>
-              <div style="margin-top: 12px">
-                <button id="viewMyBookingsBtn" class="btn-ghost">
-                  My Bookings
-                </button>
-              </div>
-            </div>
-
-            <div id="adminPanel" class="card hidden">
-              <h3>Admin — Overview</h3>
-              <div id="metrics" class="small"></div>
-              <div style="margin-top: 12px">
-                <button id="refreshAdminBtn" class="btn-ghost">Refresh</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- RIGHT: Lists / dashboards -->
-          <div>
-            <div id="orgEventsList" class="card hidden">
-              <h3>My Events</h3>
-              <div id="orgEventsContent" class="small"></div>
-            </div>
-
-            <div id="schoolBookingsList" class="card hidden">
-              <h3>My Bookings</h3>
-              <div id="schoolBookingsContent" class="small"></div>
-            </div>
-
-            <div id="adminLists" class="card hidden">
-              <h3>All Data (Admin)</h3>
-              <div id="allOrgs" class="small"></div>
-              <div id="allSchools" class="small" style="margin-top: 8px"></div>
-              <div id="allEvents" class="small" style="margin-top: 8px"></div>
-              <div id="allBookings" class="small" style="margin-top: 8px"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div id="message">
+      <h2>Welcome</h2>
+      <h1>Firebase Hosting Setup Complete</h1>
+      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
+      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
     </div>
-    <!-- DYNAMIC SCHOOL LIST (shows live data from Firestore) -->
-    <section id="schools" style="margin-top: 40px">
-      <h2>Connected Schools</h2>
-      <p class="small">
-        These are the schools currently listed in the Space Education Hub
-        database.
-      </p>
-      <div
-        id="schools-list"
-        style="display: grid; gap: 1rem; margin-top: 1rem"
-      ></div>
-    </section>
-
-    <!-- Firebase SDKs (compat for simpler single-file demo) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <!-- Replace with your Cloud Function URL or leave blank to use client matching -->
-    <script>
-      const MATCH_SCHOOLS_FUNCTION_URL = ""; // <- paste cloud function URL after deployment, e.g. https://us-central1-yourproj.cloudfunctions.net/matchSchools
-    </script>
+    <p id="load">Firebase SDK Loading&hellip;</p>
 
     <script>
-      /* ================== CONFIG: REPLACE WITH YOUR FIREBASE CONFIG ================== */
-      const firebaseConfig = {
-        apiKey: "AIzaSyAW7XnEWpL-j2LKKh4y1YJgVCtlSObGm5o",
-        authDomain: "space-education-hub.firebaseapp.com",
-        projectId: "space-education-hub",
-        // rest fields...
-      };
-      /* ============================================================================= */
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+      document.addEventListener('DOMContentLoaded', function() {
+        const loadEl = document.querySelector('#load');
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // // The Firebase SDK is initialized and available here!
+        //
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.firestore().doc('/foo/bar').get().then(() => { });
+        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        // firebase.analytics(); // call to activate
+        // firebase.analytics().logEvent('tutorial_completed');
+        // firebase.performance(); // call to activate
+        //
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
 
-      /* ---------- UI refs ---------- */
-      const openAppBtn = document.getElementById("openAppBtn");
-      const appArea = document.getElementById("appArea");
-      const headerRight = document.getElementById("headerRight");
-
-      const emailEl = document.getElementById("email"),
-        pwEl = document.getElementById("password"),
-        roleEl = document.getElementById("role");
-      const signupBtn = document.getElementById("signupBtn"),
-        loginBtn = document.getElementById("loginBtn"),
-        logoutBtn = document.getElementById("logoutBtn"),
-        authMsg = document.getElementById("authMsg");
-
-      const orgPanel = document.getElementById("orgPanel"),
-        schoolPanel = document.getElementById("schoolPanel"),
-        adminPanel = document.getElementById("adminPanel");
-
-      const ev_title = document.getElementById("ev_title"),
-        ev_description = document.getElementById("ev_description"),
-        ev_date = document.getElementById("ev_date"),
-        ev_lat = document.getElementById("ev_lat"),
-        ev_lng = document.getElementById("ev_lng"),
-        ev_capacity = document.getElementById("ev_capacity"),
-        createEventBtn = document.getElementById("createEventBtn"),
-        matchedBox = document.getElementById("matchedBox"),
-        matchedList = document.getElementById("matchedList");
-
-      const viewMyEventsBtn = document.getElementById("viewMyEventsBtn"),
-        eventsBrowse = document.getElementById("eventsBrowse"),
-        viewMyBookingsBtn = document.getElementById("viewMyBookingsBtn");
-      const orgEventsList = document.getElementById("orgEventsList"),
-        orgEventsContent = document.getElementById("orgEventsContent");
-      const schoolBookingsList = document.getElementById("schoolBookingsList"),
-        schoolBookingsContent = document.getElementById(
-          "schoolBookingsContent"
-        );
-
-      const adminLists = document.getElementById("adminLists"),
-        metricsEl = document.getElementById("metrics");
-      const allOrgs = document.getElementById("allOrgs"),
-        allSchools = document.getElementById("allSchools"),
-        allEvents = document.getElementById("allEvents"),
-        allBookings = document.getElementById("allBookings");
-
-      /* ---------- Open App ---------- */
-      openAppBtn.onclick = () => {
-        appArea.classList.remove("hidden");
-        openAppBtn.disabled = true;
-        openAppBtn.innerText = "App Opened";
-      };
-
-      /* ---------- Auth flows ---------- */
-      signupBtn.onclick = async () => {
-        const email = emailEl.value.trim(),
-          pw = pwEl.value.trim(),
-          role = roleEl.value;
-        if (!email || !pw)
-          return (authMsg.innerText = "Enter email & password");
         try {
-          const userCred = await auth.createUserWithEmailAndPassword(email, pw);
-          const uid = userCred.user.uid;
-          // create users doc
-          await db
-            .collection("users")
-            .doc(uid)
-            .set({
-              uid,
-              email,
-              role,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              profile:
-                role === "school"
-                  ? { name: "Your School", province: "", isUnderserved: true }
-                  : {
-                      name:
-                        role === "organisation" ? "Your Organisation" : "Admin",
-                    },
-            });
-          authMsg.innerText = "Signed up — now login";
+          let app = firebase.app();
+          let features = [
+            'auth', 
+            'database', 
+            'firestore',
+            'functions',
+            'messaging', 
+            'storage', 
+            'analytics', 
+            'remoteConfig',
+            'performance',
+          ].filter(feature => typeof app[feature] === 'function');
+          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
         } catch (e) {
-          authMsg.innerText = e.message;
-        }
-      };
-
-      loginBtn.onclick = async () => {
-        const email = emailEl.value.trim(),
-          pw = pwEl.value.trim();
-        try {
-          await auth.signInWithEmailAndPassword(email, pw);
-          authMsg.innerText = "";
-        } catch (e) {
-          authMsg.innerText = e.message;
-        }
-      };
-
-      logoutBtn.onclick = () => auth.signOut();
-
-      /* ---------- Auth state ---------- */
-      auth.onAuthStateChanged(async (user) => {
-        headerRight.innerHTML = "";
-        if (user) {
-          logoutBtn.classList.remove("hidden");
-          loginBtn.disabled = true;
-          signupBtn.disabled = true;
-          const userDoc = await db.collection("users").doc(user.uid).get();
-          const userData = userDoc.exists ? userDoc.data() : null;
-          headerRight.innerHTML = `<span class="small">${user.email} (${
-            userData ? userData.role : "unknown"
-          })</span>`;
-          // show role specific panels
-          orgPanel.classList.add("hidden");
-          schoolPanel.classList.add("hidden");
-          adminPanel.classList.add("hidden");
-          orgEventsList.classList.add("hidden");
-          schoolBookingsList.classList.add("hidden");
-          adminLists.classList.add("hidden");
-          if (userData) {
-            if (userData.role === "organisation") {
-              orgPanel.classList.remove("hidden");
-              orgEventsList.classList.remove("hidden");
-              loadOrgEvents(user.uid);
-            }
-            if (userData.role === "school") {
-              schoolPanel.classList.remove("hidden");
-              schoolBookingsList.classList.remove("hidden");
-              loadEventsForSchool();
-              loadMyBookings(user.uid);
-            }
-            if (userData.role === "admin") {
-              adminPanel.classList.remove("hidden");
-              adminLists.classList.remove("hidden");
-              loadAdminOverview();
-            }
-          }
-        } else {
-          logoutBtn.classList.add("hidden");
-          loginBtn.disabled = false;
-          signupBtn.disabled = false;
-          headerRight.innerHTML = "";
-          orgPanel.classList.add("hidden");
-          schoolPanel.classList.add("hidden");
-          adminPanel.classList.add("hidden");
+          console.error(e);
+          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
         }
       });
-
-      /* ---------- Create event & match ---------- */
-      createEventBtn.onclick = async () => {
-        const user = auth.currentUser;
-        if (!user) return alert("Login as organisation");
-        const title = ev_title.value.trim(),
-          desc = ev_description.value.trim(),
-          date = ev_date.value;
-        const lat = parseFloat(ev_lat.value),
-          lng = parseFloat(ev_lng.value),
-          capacity = parseInt(ev_capacity.value || "50");
-        if (!title || !date || isNaN(lat) || isNaN(lng))
-          return alert("Fill title, date, lat, lng");
-        const evt = await db.collection("events").add({
-          orgId: user.uid,
-          title,
-          description: desc,
-          date: new Date(date).toISOString(),
-          location: { lat, lng },
-          capacity,
-          status: "open",
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        alert("Event created. Matching schools...");
-        // call serverless function if URL is set, else do client-side match
-        let matches = [];
-        if (MATCH_SCHOOLS_FUNCTION_URL) {
-          try {
-            const url =
-              MATCH_SCHOOLS_FUNCTION_URL +
-              `?lat=${lat}&lng=${lng}&radiusKm=200`;
-            const r = await fetch(url);
-            const j = await r.json();
-            matches = j.results || [];
-          } catch (e) {
-            console.warn(
-              "match function failed, falling back to local match",
-              e
-            );
-            matches = await matchNearbyUnderserved(lat, lng, 200);
-          }
-        } else {
-          matches = await matchNearbyUnderserved(lat, lng, 200);
-        }
-        matchedList.innerHTML = "";
-        if (matches.length) {
-          matchedBox.classList.remove("hidden");
-          for (const s of matches) {
-            const d = document.createElement("div");
-            d.style.margin = "8px 0";
-            d.innerHTML = `<strong>${s.name}</strong> (${
-              s.province || "N/A"
-            }) — ${s.dist ? s.dist.toFixed(1) + " km" : ""} <button data-id="${
-              s.id
-            }" style="float:right">Invite</button>`;
-            const btn = d.querySelector("button");
-            btn.onclick = async () => {
-              await db.collection("bookings").add({
-                eventId: evt.id,
-                schoolId: s.id,
-                orgId: user.uid,
-                status: "requested",
-                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-              });
-              btn.disabled = true;
-              btn.innerText = "Requested";
-            };
-            matchedList.appendChild(d);
-          }
-        } else {
-          matchedBox.classList.remove("hidden");
-          matchedList.innerText =
-            "No nearby underserved schools found in radius.";
-        }
-        loadOrgEvents(user.uid);
-      };
-
-      /* ---------- Client-side simple matcher (Haversine) ---------- */
-      async function matchNearbyUnderserved(lat, lng, radiusKm = 200) {
-        const snap = await db
-          .collection("schools")
-          .where("isUnderserved", "==", true)
-          .get();
-        const out = [];
-        snap.forEach((d) => {
-          const s = d.data();
-          s.id = d.id;
-          if (!s.location) return;
-          const dkm = distanceKm(lat, lng, s.location.lat, s.location.lng);
-          if (dkm <= radiusKm)
-            out.push({
-              id: d.id,
-              name: s.name,
-              province: s.province,
-              dist: dkm,
-            });
-        });
-        out.sort((a, b) => a.dist - b.dist);
-        return out;
-      }
-      function distanceKm(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const toRad = Math.PI / 180;
-        const dLat = (lat2 - lat1) * toRad;
-        const dLon = (lon2 - lon1) * toRad;
-        const a =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos(lat1 * toRad) *
-            Math.cos(lat2 * toRad) *
-            Math.sin(dLon / 2) ** 2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      }
-
-      /* ---------- Organisation: load events & bookings ---------- */
-      async function loadOrgEvents(orgUid) {
-        orgEventsContent.innerHTML = "Loading...";
-        const snap = await db
-          .collection("events")
-          .where("orgId", "==", orgUid)
-          .orderBy("createdAt", "desc")
-          .get();
-        orgEventsContent.innerHTML = "";
-        for (const d of snap.docs) {
-          const e = d.data();
-          const id = d.id;
-          const div = document.createElement("div");
-          div.style.borderBottom = "1px solid #eee";
-          div.style.padding = "8px 0";
-          div.innerHTML = `<strong>${e.title}</strong><div class="small">${e.date} · Status: ${e.status}</div>
-      <div style="margin-top:6px"><button data-id="${id}" style="width:120px">View Bookings</button></div>`;
-          orgEventsContent.appendChild(div);
-          div.querySelector("button").onclick = async () => {
-            // list bookings
-            const bsnap = await db
-              .collection("bookings")
-              .where("eventId", "==", id)
-              .get();
-            let html = "<h4>Bookings</h4>";
-            for (const bdoc of bsnap.docs) {
-              const b = bdoc.data();
-              const bid = bdoc.id;
-              // try to fetch school name
-              let schoolName = b.schoolId;
-              try {
-                const sdoc = await db
-                  .collection("schools")
-                  .doc(b.schoolId)
-                  .get();
-                if (sdoc.exists) schoolName = sdoc.data().name;
-              } catch (e) {}
-              html += `<div style="padding:6px;border-bottom:1px solid #f2f2f2">School: ${schoolName} · Status: ${b.status} 
-          <div style="margin-top:6px">`;
-              if (b.status === "requested")
-                html += `<button data-bid="${bid}" class="confirmBtn">Confirm booking</button>`;
-              if (b.status === "scheduled")
-                html += `<button data-bid="${bid}" class="completeBtn">Mark Completed</button>`;
-              html += `</div></div>`;
-            }
-            const w = window.open("", "_blank", "width=600,height=600");
-            w.document.body.innerHTML = html;
-            // simple action: confirm/complete can't run in popup due to cross-window constraints in this single-file approach.
-            alert(
-              "Listing shown in new window. For hackathon demo you can confirm bookings via the Firebase console or implement server endpoints if you have more time."
-            );
-          };
-        }
-      }
-
-      /* ---------- School: browse events & request booking ---------- */
-      async function loadEventsForSchool() {
-        eventsBrowse.innerHTML = "Loading...";
-        const snap = await db.collection("events").orderBy("date", "asc").get();
-        eventsBrowse.innerHTML = "";
-        for (const d of snap.docs) {
-          const e = d.data();
-          const id = d.id;
-          const div = document.createElement("div");
-          div.style.borderBottom = "1px solid #eee";
-          div.style.padding = "8px 0";
-          // fetch org name
-          let orgName = e.orgId;
-          try {
-            const odoc = await db.collection("users").doc(e.orgId).get();
-            if (odoc.exists)
-              orgName = odoc.data().profile?.name || odoc.data().email;
-          } catch (e) {}
-          div.innerHTML = `<strong>${e.title}</strong><div class="small">By ${orgName} · ${e.date}</div>
-      <div style="margin-top:6px"><button data-id="${id}" style="width:120px">Request Visit</button></div>`;
-          eventsBrowse.appendChild(div);
-          div.querySelector("button").onclick = async () => {
-            const user = auth.currentUser;
-            if (!user) return alert("Login as school");
-            await db.collection("bookings").add({
-              eventId: id,
-              schoolId: user.uid,
-              orgId: e.orgId,
-              status: "requested",
-              requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            });
-            alert("Booking request sent");
-            loadMyBookings(user.uid);
-          };
-        }
-      }
-
-      /* ---------- School: my bookings & feedback ---------- */
-      async function loadMyBookings(schoolUid) {
-        schoolBookingsContent.innerHTML = "Loading...";
-        const snap = await db
-          .collection("bookings")
-          .where("schoolId", "==", schoolUid)
-          .orderBy("requestedAt", "desc")
-          .get();
-        schoolBookingsContent.innerHTML = "";
-        for (const d of snap.docs) {
-          const b = d.data();
-          const id = d.id;
-          // fetch event title
-          let evTitle = b.eventId;
-          try {
-            const ed = await db.collection("events").doc(b.eventId).get();
-            if (ed.exists) evTitle = ed.data().title;
-          } catch (e) {}
-          const div = document.createElement("div");
-          div.style.padding = "8px 0";
-          div.style.borderBottom = "1px solid #f3f3f3";
-          div.innerHTML = `<div><strong>${evTitle}</strong><div class="small">Status: ${b.status}</div></div>`;
-          if (b.status === "completed") {
-            const fbBtn = document.createElement("button");
-            fbBtn.innerText = "Leave feedback";
-          }
-          schoolBookingsContent.appendChild(div);
-        }
-      }
-
-      /* ---------- Admin: overview & lists ---------- */
-      async function loadAdminOverview() {
-        // Implementation for admin overview
-      }
     </script>
   </body>
 </html>
